@@ -1,61 +1,72 @@
 @extends('layouts.app')
 
 @section('content')
-<form action="{{ route('categories.update', $category->id) }}" method="POST" id="categoryForm" class="needs-validation" novalidate>
-    @csrf
-    @method('PUT')
 
-    <div class="container-fluid py-4">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <!-- Header -->
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+
+            <!-- Zone Form Card -->
+            <form action="{{ route('zones.update', $zone->id) }}" method="POST" class="needs-validation" novalidate>
+                @csrf
+                @method('PUT')
+
+                <!-- Header Section -->
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2 class="fw-bold text-primary">Edit Category</h2>
-                        <button class="btn btn-primary px-4 py-2 d-flex align-items-center gap-2 shadow-sm" type="submit">
-                            <i class="fas fa-save"></i>
-                            <span>Update Category</span>
-                        </button>
+                    <h2 class="fw-bold mb-0 text-primary">Edit Zone</h2>
+
+                    <button class="btn btn-primary px-4 py-2 d-flex align-items-center gap-2 shadow-sm hover-lift" type="submit">
+                        <i class="fas fa-edit"></i>
+                        <span>Update Zone</span>
+                    </button>
                 </div>
 
-                <!-- Form Card -->
-                <div class="card border-0 shadow-sm">
+                <div class="card border-0 shadow-sm hover-lift">
                     <div class="card-body p-4">
-                        <div class="mb-4">
-                            <h5 class="text-primary">Category Details</h5>
-                        </div>
+                        <h5 class="mb-4 text-primary">Zone Details</h5>
 
                         <div class="mb-4">
-                            <label class="form-label fw-bold text-dark">Category Name<span class="text-danger">*</span></label>
-                            <input type="text" 
-                                   name="name" 
-                                   class="form-control" 
-                                   value="{{ old('name', $category->name) }}" 
-                                   placeholder="Enter Category Name" 
-                                   required>
+                            <label class="form-label fw-bold text-dark">Zone Name <span class="text-danger">*</span></label>
+                            <input 
+                                type="text" 
+                                name="name" 
+                                class="form-control" 
+                                placeholder="Enter Zone Name"
+                                value="{{ old('name', $zone->name) }}"
+                                required
+                            >
                             <div class="invalid-feedback">
-                                Please enter a Category Name.
+                                Please enter a Zone Name.
                             </div>
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label fw-bold text-dark">Description</label>
-                            <textarea class="form-control" 
-                                      name="description" 
-                                      rows="3" 
-                                      placeholder="Enter Category Description">{{ old('description', $category->description) }}</textarea>
+                            <label class="form-label fw-bold text-dark">Coverage Area</label>
+                            <textarea 
+                                class="form-control" 
+                                name="area" 
+                                rows="3" 
+                                placeholder="Enter Coverage Area Details"
+                                required
+                            >{{ old('area', $zone->area) }}</textarea>
+                            <div class="invalid-feedback">
+                                Please enter Coverage Area.
+                            </div>
                         </div>
 
                     </div>
                 </div>
-            </div>
+            </form>
+
         </div>
     </div>
-</form>
+</div>
 
+<!-- Form Validation Script -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    const form = document.getElementById('categoryForm');
-    form.addEventListener('submit', function(event) {
+    const form = document.querySelector('.needs-validation');
+    form.addEventListener('submit', function (event) {
         if (!form.checkValidity()) {
             event.preventDefault();
             event.stopPropagation();
@@ -64,4 +75,5 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 </script>
+
 @endsection

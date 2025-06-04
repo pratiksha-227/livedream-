@@ -1,34 +1,33 @@
 @extends('layouts.app')
-
 @section('content')
 
 <div class="container-fluid">
     <div class="row">
+        <!-- Main Content -->
         <div class="col-md-12 p-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2 class="fw-bold text-primary">Category Management</h2>
-                <a href="{{ route('category.create') }}" class="btn btn-primary px-2 hover-lift">
-                    <i class="fas fa-plus"></i> Add New Category
+                <h2 class="fw-bold text-primary">Zone Management</h2>
+                <a href="{{ route('zones.create') }}" class="btn btn-primary px-3 hover-lift">
+                    <i class="fas fa-plus"></i> Add New Zone
                 </a>
             </div>
 
-            <form action="{{ route('categories.index') }}" method="GET" class="mb-3">
+            <!-- Search & Filter -->
+            <form action="{{ route('zones.index') }}" method="GET" class="mb-3">
                 <div class="card p-3 border-0 shadow-sm w-100 custom-card">
                     <div class="row g-2 align-items-center">
-                        <!-- Search Bar: Full width on mobile, fixed width on larger screens -->
                         <div class="col-12 col-md-6">
                             <div class="input-group" style="width: 100%; max-width: 400px;">
                                 <span class="input-group-text bg-white border-end-0">
                                     <i class="fa-solid fa-magnifying-glass text-primary"></i>
                                 </span>
                                 <input type="text" class="form-control border-start-0"
-                                    placeholder="Search categories..." name="search"
+                                    placeholder="Search zones..." name="search" 
                                     value="{{ request('search') }}">
                                 <button type="submit" class="btn btn-primary d-none" id="searchSubmitBtn"></button>
                             </div>
                         </div>
 
-                        <!-- Buttons: On mobile, shown in second row -->
                         <div class="col-12 col-md-6">
                             <div class="d-flex flex-wrap justify-content-md-end gap-2">
                                 <button type="button" class="btn btn-outline-danger hover-lift btn-sm" id="deleteToggle">
@@ -49,71 +48,69 @@
                 </div>
             </form>
 
+            <!-- Zone Table -->
+            <form action="{{ route('zones.bulk-delete') }}" method="POST" id="bulkDeleteForm" onsubmit="return confirm('Are you sure you want to delete selected zones?')">
+                    @csrf
+                    @method('DELETE')
 
-
-
- {{-- Close the search form here --}}
-
-
-            {{-- Bulk Delete Form (now separate from search form) --}}
-            <form action="{{ route('categories.bulk-delete') }}" method="POST" id="bulkDeleteForm" onsubmit="return confirm('Are you sure you want to delete selected categories?')">
-                @csrf
-                @method('DELETE')
-
-                <div class="card mt-3 border-0 shadow-sm table-responsive custom-card">
-                    <table class="table align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th class="bulk-checkbox-header d-none"><input type="checkbox" id="selectAll"></th>
-                                <th>Sr No</th>
-                                <th>Category Name</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            @forelse ($categories as $index => $category)
+                    <div class="card mt-3 border-0 shadow-sm table-responsive custom-card">
+                        <table class="table align-middle">
+                            <thead class="table-light">
                                 <tr>
-                                    <td class="bulk-checkbox-cell d-none"><input type="checkbox" name="ids[]" value="{{ $category->id }}" class="selectItem"></td>
-                                    <td>{{ $index + 1 }}</td>
-                                    <td>{{ $category->name }}</td>
-                                    <td>
-                                        <div class="d-flex gap-2">
-                                            <div class="edit">
-                                                <a class="dropdown-item text-info" href="{{ route('categories.show', $category->id) }}" title="View">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                            </div>
-                                            <div class="edit">
-                                                <a class="dropdown-item" href="{{ route('categories.edit', $category->id) }}" title="Edit">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                            </div>
-                                            <div class="edit">
-                                                <form action="{{ route('categories.destroy', $category->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this category?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button class="dropdown-item text-danger border-0 bg-transparent" type="submit" title="Delete">
-                                                        <i class="fa-solid fa-trash fa-lg" style="color: #ec1313;"></i>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </td>
+                                    <th class="bulk-checkbox-header d-none"><input type="checkbox" id="selectAll"></th> 
+                                    <th>Sr No</th>
+                                    <th>Zone Name</th>
+                                    <th>Area</th>
+                                    <th></th>
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="text-center">No categories found.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </form> {{-- Close the bulk delete form here --}}
+                            </thead>
+
+                            <tbody>
+                                @forelse ($zones as $index => $zone)
+                                    <tr>
+                                        <td class="bulk-checkbox-cell d-none"><input type="checkbox" name="ids[]" value="{{ $zone->id }}" class="selectItem"></td>
+                                        <td>{{ $index + 1 }}</td>
+                                        <td>{{ $zone->name }}</td>
+                                        <td>{{ $zone->area }}</td>
+                                        
+                                        <td>
+                                            <div class="d-flex gap-2">
+                                                <div class="view">
+                                                    <a class="dropdown-item text-info" href="{{ route('zones.show', $zone->id) }}" title="View">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                </div>
+                                                <div class="edit">
+                                                    <a class="dropdown-item" href="{{ route('zones.edit', $zone->id) }}" title="Edit">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                </div>
+                                                <div class="delete">
+                                                    <form action="{{ route('zones.destroy', $zone->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this zone?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button class="dropdown-item text-danger border-0 bg-transparent" type="submit" title="Delete">
+                                                            <i class="fa-solid fa-trash fa-lg" style="color: #ec1313;"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="text-center">No zones found.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+            </form>
         </div>
     </div>
 </div>
 
+<!-- Filter Sidebar -->
 <div id="filterSidebar" class="position-fixed bg-white shadow-lg p-4 custom-sidebar" style="right: -300px; top: 0; height: 100vh; width: 300px; transition: 0.3s; z-index: 1050;">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h5 class="mb-0 text-primary">Filter Options</h5>
@@ -123,17 +120,28 @@
     </div>
     <hr>
     <div class="mb-4">
-        <h6 class="mb-3 fw-bold">Status</h6>
+        <h6 class="mb-3 fw-bold">Zone Status</h6>
         <div class="form-check mb-2">
-            <input class="form-check-input" type="checkbox" id="status1">
-            <label class="form-check-label" for="status1">Active</label>
+            <input class="form-check-input" type="checkbox" id="zoneStatus1">
+            <label class="form-check-label" for="zoneStatus1">Active</label>
         </div>
         <div class="form-check mb-2">
-            <input class="form-check-input" type="checkbox" id="status2">
-            <label class="form-check-label" for="status2">Inactive</label>
+            <input class="form-check-input" type="checkbox" id="zoneStatus2">
+            <label class="form-check-label" for="zoneStatus2">Inactive</label>
         </div>
     </div>
-    <button class="btn btn-primary mt-3 w-100 hover-lift">Apply</button>
+    <div class="mb-4">
+        <h6 class="mb-3 fw-bold">Zone Area</h6>
+        <div class="mb-2">
+            <label for="minQuantity" class="form-label">Min Area</label>
+            <input type="number" class="form-control" id="minQuantity" placeholder="e.g., 10">
+        </div>
+        <div class="mb-2">
+            <label for="maxQuantity" class="form-label">Max Area</label>
+            <input type="number" class="form-control" id="maxQuantity" placeholder="e.g., 100">
+        </div>
+    </div>
+    <button class="btn btn-primary mt-3 w-100 hover-lift">Apply Filters</button>
     <button class="btn btn-outline-secondary mt-2 w-100 hover-lift" id="closeFilterBottom">Close</button>
 </div>
 
@@ -142,8 +150,8 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Filter Sidebar Elements
-        const filterBtn = document.getElementById('filterBtn');
-        const filterSidebar = document.getElementById('filterSidebar');
+        const filterBtn = document.getElementById('filterBtn');     
+        const filterSidebar = document.getElementById('filterSidebar');                 
         const closeFilterBtn = document.getElementById('closeFilter');
         const closeFilterBottomBtn = document.getElementById('closeFilterBottom');
         const filterOverlay = document.getElementById('filterOverlay');
@@ -157,8 +165,8 @@
         const bulkCheckboxCells = document.querySelectorAll('.bulk-checkbox-cell');
 
         // Search Elements
-        const searchInput = document.querySelector('input[name="search"]'); // Select by name
-        const searchForm = searchInput.closest('form'); // Get the parent form of the search input
+        const searchInput = document.querySelector('input[name="search"]');
+        const searchForm = searchInput.closest('form');
 
         let deleteModeActive = false; // Tracks the state of bulk delete mode
 
