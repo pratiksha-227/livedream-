@@ -50,11 +50,37 @@ class ProductController extends Controller
             'labor_charges' => 'nullable|numeric|min:0',
             'delivery_duration' => 'nullable|integer|min:0',
             'delivery_unit' => 'nullable|string|in:days,months,years',
-            'other_parameters' => 'nullable|string',
+            'custom_keys' => 'nullable|array',
+            'custom_values' => 'nullable|array',
+            'other_parameters' => 'nullable',
         ]);
 
         try {
-            $productDetail = ProductDetail::create($request->all());
+            // Prepare payload similar to update(), allowing custom params
+            $data = $request->except(['custom_keys', 'custom_values']);
+
+            if ($request->has('custom_keys') && $request->has('custom_values')) {
+                $customParams = [];
+                foreach ($request->custom_keys as $index => $key) {
+                    if (!empty($key) && isset($request->custom_values[$index])) {
+                        $customParams[$key] = $request->custom_values[$index];
+                    }
+                }
+                if (!empty($customParams)) {
+                    $data['other_parameters'] = $customParams;
+                }
+            } elseif ($request->filled('other_parameters')) {
+                // If sent as JSON string, decode to array for JSON column cast
+                $decoded = json_decode($request->input('other_parameters'), true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $data['other_parameters'] = $decoded;
+                } else {
+                    // Fallback: wrap raw string in a descriptive key
+                    $data['other_parameters'] = ['notes' => $request->input('other_parameters')];
+                }
+            }
+
+            $productDetail = ProductDetail::create($data);
 
             return response()->json([
                 'success' => true,
@@ -81,7 +107,7 @@ class ProductController extends Controller
             'purchase_cost' => 'required|numeric|min:0',
             'selling_price' => 'required|numeric|min:0',
             'discount_price' => 'nullable|numeric|min:0',
-            'stock_available' => 'required|boolean',
+            'stock_available' => 'nullable|boolean',
         ]);
 
         try {
@@ -99,7 +125,7 @@ class ProductController extends Controller
                 'purchase_cost' => $request->purchase_cost,
                 'selling_price' => $request->selling_price,
                 'discount_price' => $request->discount_price,
-                'stock_available' => $request->stock_available,
+                'stock_available' => $request->boolean('stock_available'),
             ]);
 
             return response()->json([
